@@ -60,12 +60,13 @@ const MuscleMassReport = () => {
               <LineChart data={timeSeries} margin={{ top: 50, right: 20, left: 10, bottom: 50 }}>
                 <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-700" />
                 <XAxis dataKey="dateLabel" angle={-35} textAnchor="end" height={50} tick={{ fill: "#6b7280" }} />
-                <YAxis tick={{ fill: "#6b7280" }} />
+                <YAxis yAxisId="left" tick={{ fill: "#6b7280" }} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fill: "#6b7280" }} />
                 <Tooltip />
                 <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: 8 }} />
-                <Line type="monotone" dataKey="muscleMassPercentage" stroke="#10b981" name="Muscle Mass %" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="skeletalMuscle" stroke="#8b5cf6" name="Skeletal Muscle (kg)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="muscleMass" stroke="#3b82f6" name="Muscle Mass (kg)" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="muscleMassPercentage" stroke="#10b981" name="Muscle Mass %" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="skeletalMuscle" stroke="#8b5cf6" name="Skeletal Muscle %" strokeWidth={2} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="muscleMass" stroke="#3b82f6" name="Muscle Mass (kg)" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

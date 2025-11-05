@@ -39,14 +39,20 @@ const ReportsOverview = () => {
 
   const latest = data.length ? [...data].sort((a, b) => b.date - a.date)[0] : null;
   const pieData = useMemo(() => {
-    if (!latest || latest.weight <= 0) return [] as { name: string; value: number; color: string }[];
-    const boneMassPct = (latest.boneMass / latest.weight) * 100;
-    const otherPct = Math.max(0, 100 - latest.muscleMassPercentage - latest.bodyFatPercentage - latest.bodyHydration - boneMassPct);
+    if (!latest) return [] as { name: string; value: number; color: string }[];
+    const otherPct = Math.max(
+      0,
+      100 -
+        latest.muscleMassPercentage -
+        latest.bodyFatPercentage -
+        latest.bodyHydration -
+        latest.boneMass
+    );
     return [
       { name: "Muscle Mass %", value: latest.muscleMassPercentage, color: "#10b981" },
       { name: "Water %", value: latest.bodyHydration, color: "#3b82f6" },
       { name: "Body Fat %", value: latest.bodyFatPercentage, color: "#ef4444" },
-      { name: "Bone Mass %", value: Number(boneMassPct.toFixed(1)), color: "#f59e0b" },
+      { name: "Bone Mass %", value: Number(latest.boneMass.toFixed(1)), color: "#f59e0b" },
       { name: "Other %", value: Number(otherPct.toFixed(1)), color: "#8b5cf6" },
     ].filter((x) => x.value > 0);
   }, [latest]);

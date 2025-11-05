@@ -297,7 +297,7 @@ const LandingPage = () => {
                   dataKey="boneMass"
                   stroke="#f59e0b"
                   strokeWidth={3}
-                  name="Bone Mass (kg)"
+                  name="Bone Mass (%)"
                   dot={{ fill: '#f59e0b', r: 6 }}
                   activeDot={{ r: 8 }}
                 />

@@ -554,13 +554,13 @@ const DashboardHome = () => {
             <option value="visceralFat-desc">Visceral Fat (High to Low)</option>
             <option value="visceralFat-asc">Visceral Fat (Low to High)</option>
             <option value="skeletalMuscle-desc">
-              Skeletal Muscle (High to Low)
+              Skeletal Muscle % (High to Low)
             </option>
             <option value="skeletalMuscle-asc">
-              Skeletal Muscle (Low to High)
+              Skeletal Muscle % (Low to High)
             </option>
-            <option value="boneMass-desc">Bone Mass (High to Low)</option>
-            <option value="boneMass-asc">Bone Mass (Low to High)</option>
+            <option value="boneMass-desc">Bone Mass % (High to Low)</option>
+            <option value="boneMass-asc">Bone Mass % (Low to High)</option>
             <option value="protein-desc">Protein (High to Low)</option>
             <option value="protein-asc">Protein (Low to High)</option>
             <option value="bmi-desc">BMI (High to Low)</option>
@@ -610,22 +610,22 @@ const DashboardHome = () => {
                 />
                 <SortableHeader
                   field="subcutaneousFat"
-                  label="Subcutaneous Fat"
+                  label="Subcutaneous Fat %"
                   className="px-2 py-1.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[70px]"
                 />
                 <SortableHeader
                   field="visceralFat"
-                  label="Visceral Fat"
+                  label="Visceral Fat %"
                   className="px-2 py-1.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[70px]"
                 />
                 <SortableHeader
                   field="skeletalMuscle"
-                  label="Skeletal Muscle"
+                  label="Skeletal Muscle %"
                   className="px-2 py-1.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[70px]"
                 />
                 <SortableHeader
                   field="boneMass"
-                  label="Bone Mass"
+                  label="Bone Mass %"
                   className="px-2 py-1.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[70px]"
                 />
                 <SortableHeader
@@ -953,10 +953,10 @@ const DashboardHome = () => {
                   </p>
                 </div>
 
-                {/* Subcutaneous Fat */}
+                {/* Subcutaneous Fat % */}
                 <div className="bg-pink-50 dark:bg-pink-900/20 rounded-xl p-3 border border-pink-200/50 dark:border-pink-800/50">
                   <p className="text-xs text-pink-600 dark:text-pink-400 font-medium mb-1">
-                    Subcutaneous Fat
+                    Subcutaneous Fat %
                   </p>
                   <p className="text-lg font-bold text-pink-700 dark:text-pink-300 flex items-center">
                     {record.subcutaneousFat}
@@ -970,10 +970,10 @@ const DashboardHome = () => {
                   </p>
                 </div>
 
-                {/* Visceral Fat */}
+                {/* Visceral Fat % */}
                 <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-3 border border-orange-200/50 dark:border-orange-800/50">
                   <p className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">
-                    Visceral Fat
+                    Visceral Fat %
                   </p>
                   <p className="text-lg font-bold text-orange-700 dark:text-orange-300 flex items-center">
                     {record.visceralFat}
@@ -987,7 +987,7 @@ const DashboardHome = () => {
                   </p>
                 </div>
 
-                {/* Skeletal Muscle */}
+                {/* Skeletal Muscle % */}
                 <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200/50 dark:border-purple-800/50">
                   <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">
                     Skeletal Muscle
@@ -1010,8 +1010,8 @@ const DashboardHome = () => {
                     Bone Mass
                   </p>
                   <p className="text-lg font-bold text-teal-700 dark:text-teal-300 flex items-center">
-                    {record.boneMass}
-                    <span className="text-xs ml-1">kg</span>
+                      {record.boneMass}
+                    <span className="text-xs ml-1">%</span>
                     <TrendIndicator
                       trend={calculateTrend(
                         record,
@@ -1156,8 +1156,7 @@ const DashboardHome = () => {
       {sortedData.length > 0 &&
         (() => {
           const latestRecord = sortedData[0]; // Most recent record
-          const boneMassPercentage =
-            (latestRecord.boneMass / latestRecord.weight) * 100;
+          const boneMassPercentage = latestRecord.boneMass;
           const otherPercentage = Math.max(
             0,
             100 -
@@ -2089,7 +2088,7 @@ const DashboardHome = () => {
                 {/* Skeletal Muscle */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Skeletal Muscle (kg)
+                    Skeletal Muscle %
                   </label>
                   <input
                     type="text"
@@ -2103,10 +2102,10 @@ const DashboardHome = () => {
                   />
                 </div>
 
-                {/* Bone Mass */}
+                {/* Bone Mass % */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Bone Mass (kg)
+                    Bone Mass %
                   </label>
                   <input
                     type="text"

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/sw\\.js", "dest": "/sw.js" },
+    { "src": "/manifest\\.json", "dest": "/manifest.json" },
+    { "src": "/favicon\\.svg", "dest": "/favicon.svg" },
+    { "src": "/icon-\\d+\\.png", "dest": "/$0" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
