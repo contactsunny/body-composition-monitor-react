@@ -12,10 +12,9 @@ import {
 
 interface TopBarProps {
   onToggleSidebar: () => void;
-  sidebarOpen: boolean;
 }
 
-const TopBar = ({ onToggleSidebar, sidebarOpen }: TopBarProps) => {
+const TopBar = ({ onToggleSidebar }: TopBarProps) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();

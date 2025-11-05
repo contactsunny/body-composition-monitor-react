@@ -239,20 +239,7 @@ const DashboardHome = () => {
     }
   };
 
-  // Commit numeric value to formData on blur (rounded to 2 decimals)
-  const handleFieldBlur = (field: NumericField) => {
-    const raw = inputValues[field].trim();
-    if (raw === "" || raw === "-") {
-      setFormData((prev) => ({ ...prev, [field]: 0 }));
-      return;
-    }
-    const parsed = Number(raw);
-    if (isNaN(parsed)) {
-      return;
-    }
-    const rounded = parseFloat(parsed.toFixed(2));
-    setFormData((prev) => ({ ...prev, [field]: rounded }));
-  };
+  // Removed handleFieldBlur; values are committed on submit
 
   // Handle date change
   const handleDateChange = (dateString: string) => {
