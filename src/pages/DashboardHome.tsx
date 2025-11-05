@@ -848,7 +848,7 @@ const DashboardHome = () => {
 
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
-        {paginatedData.map((record, index) => (
+        {paginatedData.map((record) => (
           <div
             key={record.id}
             className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden hover:shadow-xl transition-shadow"
@@ -1381,56 +1381,6 @@ const DashboardHome = () => {
                             strokeWidth: 1,
                             strokeDasharray: "3 3",
                           }}
-                          position={(props) => {
-                            if (
-                              !props ||
-                              !props.coordinate ||
-                              !props.viewBox ||
-                              !props.contentSize
-                            ) {
-                              return { x: 0, y: 0 };
-                            }
-
-                            const { coordinate, viewBox, contentSize } = props;
-                            const chartLeft = viewBox.x || 0;
-                            const chartRight =
-                              (viewBox.x || 0) + (viewBox.width || 0);
-                            const chartTop = viewBox.y || 0;
-                            const chartBottom =
-                              (viewBox.y || 0) + (viewBox.height || 0);
-
-                            const tooltipWidth = contentSize.width || 220;
-                            const tooltipHeight = contentSize.height || 150;
-                            const padding = 15; // Padding from chart edges and between point and tooltip
-
-                            let x = coordinate.x + padding; // Default to right of the point
-                            let y = coordinate.y - tooltipHeight / 2; // Center vertically on the point
-
-                            // Check if tooltip goes out of bounds on the right
-                            if (x + tooltipWidth > chartRight) {
-                              // Try to move to the left of the point
-                              x = coordinate.x - tooltipWidth - padding;
-                              // If it still goes out of bounds on the left, stick to the left edge
-                              if (x < chartLeft) {
-                                x = chartLeft + padding;
-                              }
-                            }
-
-                            // Ensure tooltip doesn't go out of bounds on the left
-                            if (x < chartLeft) {
-                              x = chartLeft + padding;
-                            }
-
-                            // Vertical positioning - ensure tooltip stays within chart bounds
-                            if (y < chartTop) {
-                              y = chartTop + padding; // Stick to the top edge with padding
-                            }
-                            if (y + tooltipHeight > chartBottom) {
-                              y = chartBottom - tooltipHeight - padding; // Stick to the bottom edge with padding
-                            }
-
-                            return { x, y };
-                          }}
                           wrapperStyle={{ zIndex: 1000 }}
                         />
                         <Legend
@@ -1551,13 +1501,20 @@ const DashboardHome = () => {
                                   <p className="text-sm text-gray-600 dark:text-gray-400">
                                     Value:{" "}
                                     <span className="font-bold text-gray-900 dark:text-white">
-                                      {data.value.toFixed(1)}%
+                                      {Number(
+                                        (data as any)?.value ?? 0
+                                      ).toFixed(1)}
+                                      %
                                     </span>
                                   </p>
                                   <p className="text-sm text-gray-600 dark:text-gray-400">
                                     Percentage:{" "}
                                     <span className="font-bold text-gray-900 dark:text-white">
-                                      {(data.payload.percent * 100).toFixed(1)}%
+                                      {Number(
+                                        ((data as any)?.payload?.percent ?? 0) *
+                                          100
+                                      ).toFixed(1)}
+                                      %
                                     </span>
                                   </p>
                                 </div>
@@ -1751,51 +1708,6 @@ const DashboardHome = () => {
                             strokeWidth: 1,
                             strokeDasharray: "3 3",
                           }}
-                          position={(props) => {
-                            if (
-                              !props ||
-                              !props.coordinate ||
-                              !props.viewBox ||
-                              !props.contentSize
-                            ) {
-                              return { x: 0, y: 0 };
-                            }
-
-                            const { coordinate, viewBox, contentSize } = props;
-                            const chartLeft = viewBox.x || 0;
-                            const chartRight =
-                              (viewBox.x || 0) + (viewBox.width || 0);
-                            const chartTop = viewBox.y || 0;
-                            const chartBottom =
-                              (viewBox.y || 0) + (viewBox.height || 0);
-
-                            const tooltipWidth = contentSize.width || 220;
-                            const tooltipHeight = contentSize.height || 150;
-                            const padding = 15;
-
-                            let x = coordinate.x + padding;
-                            let y = coordinate.y - tooltipHeight / 2;
-
-                            if (x + tooltipWidth > chartRight) {
-                              x = coordinate.x - tooltipWidth - padding;
-                              if (x < chartLeft) {
-                                x = chartLeft + padding;
-                              }
-                            }
-
-                            if (x < chartLeft) {
-                              x = chartLeft + padding;
-                            }
-
-                            if (y < chartTop) {
-                              y = chartTop + padding;
-                            }
-                            if (y + tooltipHeight > chartBottom) {
-                              y = chartBottom - tooltipHeight - padding;
-                            }
-
-                            return { x, y };
-                          }}
                           wrapperStyle={{ zIndex: 1000 }}
                         />
                         <Legend
@@ -1919,13 +1831,20 @@ const DashboardHome = () => {
                                   <p className="text-sm text-gray-600 dark:text-gray-400">
                                     Value:{" "}
                                     <span className="font-bold text-gray-900 dark:text-white">
-                                      {data.value.toFixed(1)}%
+                                      {Number(
+                                        (data as any)?.value ?? 0
+                                      ).toFixed(1)}
+                                      %
                                     </span>
                                   </p>
                                   <p className="text-sm text-gray-600 dark:text-gray-400">
                                     Percentage:{" "}
                                     <span className="font-bold text-gray-900 dark:text-white">
-                                      {(data.payload.percent * 100).toFixed(1)}%
+                                      {Number(
+                                        ((data as any)?.payload?.percent ?? 0) *
+                                          100
+                                      ).toFixed(1)}
+                                      %
                                     </span>
                                   </p>
                                 </div>
