@@ -49,6 +49,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token]);
 
   const login = (userData: User, authToken: string) => {
+    // Write to localStorage FIRST (synchronously) before updating state
+    // This ensures the token is available immediately for API calls
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', authToken);
+    
+    // Then update state
     setUser(userData);
     setToken(authToken);
   };
