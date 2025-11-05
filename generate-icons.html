@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate PWA Icons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to right, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .icon-preview {
+            text-align: center;
+        }
+        .icon-preview canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .icon-preview p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PWA Icon Generator</h1>
+        <p>This will generate PNG icons in various sizes for your PWA.</p>
+        <button onclick="generateIcons()">Generate All Icons</button>
+        <div id="preview"></div>
+    </div>
+
+    <script>
+        // Apple and PWA recommended sizes
+        // 180x180 = iOS/iPadOS app icon (no transparent background needed, already has gradient)
+        // 192x192 = Android minimum
+        // 512x512 = Android/PWA standard
+        // 1024x1024 = iOS App Store/full resolution
+        const sizes = [180, 192, 512, 1024];
+
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+
+            // Background gradient with rounded corners (matching favicon.svg design)
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#6366f1');
+            gradient.addColorStop(0.5, '#8b5cf6');
+            gradient.addColorStop(1, '#d946ef');
+            
+            // Draw rounded rectangle background
+            const cornerRadius = size * 0.1875; // 6/32 ratio from SVG
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(cornerRadius, 0);
+            ctx.lineTo(size - cornerRadius, 0);
+            ctx.quadraticCurveTo(size, 0, size, cornerRadius);
+            ctx.lineTo(size, size - cornerRadius);
+            ctx.quadraticCurveTo(size, size, size - cornerRadius, size);
+            ctx.lineTo(cornerRadius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - cornerRadius);
+            ctx.lineTo(0, cornerRadius);
+            ctx.quadraticCurveTo(0, 0, cornerRadius, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            // Scale factor for responsive sizing (matching favicon.svg which is 32x32)
+            // The content area in favicon is 16x16 (from translate(8,8) and width of bars ~13)
+            const scale = size / 32;
+            const contentScale = scale; // Direct scaling from 32px base
+
+            // Draw the bar chart with trend line (matching favicon.svg exactly)
+            ctx.save();
+            ctx.translate(8 * scale, 8 * scale);
+
+            // Bar chart representing body metrics (matching favicon.svg)
+            // Bar 1
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            const barWidth = 2.5 * scale;
+            const bar1Height = 8 * scale;
+            const bar1Y = 8 * scale;
+            ctx.beginPath();
+            ctx.moveTo(0, bar1Y + bar1Height - scale);
+            ctx.lineTo(0, bar1Y + scale);
+            ctx.quadraticCurveTo(0, bar1Y, scale, bar1Y);
+            ctx.lineTo(barWidth - scale, bar1Y);
+            ctx.quadraticCurveTo(barWidth, bar1Y, barWidth, bar1Y + scale);
+            ctx.lineTo(barWidth, bar1Y + bar1Height - scale);
+            ctx.quadraticCurveTo(barWidth, bar1Y + bar1Height, barWidth - scale, bar1Y + bar1Height);
+            ctx.lineTo(scale, bar1Y + bar1Height);
+            ctx.quadraticCurveTo(0, bar1Y + bar1Height, 0, bar1Y + bar1Height - scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // Bar 2
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            const bar2X = 3.5 * scale;
+            const bar2Height = 12 * scale;
+            const bar2Y = 4 * scale;
+            ctx.beginPath();
+            ctx.moveTo(bar2X, bar2Y + bar2Height - scale);
+            ctx.lineTo(bar2X, bar2Y + scale);
+            ctx.quadraticCurveTo(bar2X, bar2Y, bar2X + scale, bar2Y);
+            ctx.lineTo(bar2X + barWidth - scale, bar2Y);
+            ctx.quadraticCurveTo(bar2X + barWidth, bar2Y, bar2X + barWidth, bar2Y + scale);
+            ctx.lineTo(bar2X + barWidth, bar2Y + bar2Height - scale);
+            ctx.quadraticCurveTo(bar2X + barWidth, bar2Y + bar2Height, bar2X + barWidth - scale, bar2Y + bar2Height);
+            ctx.lineTo(bar2X + scale, bar2Y + bar2Height);
+            ctx.quadraticCurveTo(bar2X, bar2Y + bar2Height, bar2X, bar2Y + bar2Height - scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // Bar 3
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            const bar3X = 7 * scale;
+            const bar3Height = 10 * scale;
+            const bar3Y = 6 * scale;
+            ctx.beginPath();
+            ctx.moveTo(bar3X, bar3Y + bar3Height - scale);
+            ctx.lineTo(bar3X, bar3Y + scale);
+            ctx.quadraticCurveTo(bar3X, bar3Y, bar3X + scale, bar3Y);
+            ctx.lineTo(bar3X + barWidth - scale, bar3Y);
+            ctx.quadraticCurveTo(bar3X + barWidth, bar3Y, bar3X + barWidth, bar3Y + scale);
+            ctx.lineTo(bar3X + barWidth, bar3Y + bar3Height - scale);
+            ctx.quadraticCurveTo(bar3X + barWidth, bar3Y + bar3Height, bar3X + barWidth - scale, bar3Y + bar3Height);
+            ctx.lineTo(bar3X + scale, bar3Y + bar3Height);
+            ctx.quadraticCurveTo(bar3X, bar3Y + bar3Height, bar3X, bar3Y + bar3Height - scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // Bar 4
+            ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+            const bar4X = 10.5 * scale;
+            const bar4Height = 14 * scale;
+            const bar4Y = 2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(bar4X, bar4Y + bar4Height - scale);
+            ctx.lineTo(bar4X, bar4Y + scale);
+            ctx.quadraticCurveTo(bar4X, bar4Y, bar4X + scale, bar4Y);
+            ctx.lineTo(bar4X + barWidth - scale, bar4Y);
+            ctx.quadraticCurveTo(bar4X + barWidth, bar4Y, bar4X + barWidth, bar4Y + scale);
+            ctx.lineTo(bar4X + barWidth, bar4Y + bar4Height - scale);
+            ctx.quadraticCurveTo(bar4X + barWidth, bar4Y + bar4Height, bar4X + barWidth - scale, bar4Y + bar4Height);
+            ctx.lineTo(bar4X + scale, bar4Y + bar4Height);
+            ctx.quadraticCurveTo(bar4X, bar4Y + bar4Height, bar4X, bar4Y + bar4Height - scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // Trend line overlay (matching favicon.svg path)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 1.5 * scale;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(1.25 * scale, 12 * scale);
+            ctx.lineTo(4.75 * scale, 7 * scale);
+            ctx.lineTo(8.25 * scale, 9 * scale);
+            ctx.lineTo(11.75 * scale, 4 * scale);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function generateIcons() {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '';
+
+            sizes.forEach(size => {
+                const container = document.createElement('div');
+                container.className = 'icon-preview';
+
+                const canvas = document.createElement('canvas');
+                drawIcon(canvas, size);
+
+                const label = document.createElement('p');
+                label.textContent = `${size}x${size}`;
+
+                const downloadLink = document.createElement('a');
+                downloadLink.href = canvas.toDataURL('image/png');
+                downloadLink.download = `icon-${size}.png`;
+                downloadLink.textContent = 'Download';
+                downloadLink.style.color = '#6366f1';
+                downloadLink.style.textDecoration = 'none';
+                downloadLink.style.fontWeight = 'bold';
+
+                container.appendChild(canvas);
+                container.appendChild(label);
+                container.appendChild(downloadLink);
+                preview.appendChild(container);
+            });
+        }
+
+        // Auto-generate on load
+        window.onload = generateIcons;
+    </script>
+</body>
+</html>
+

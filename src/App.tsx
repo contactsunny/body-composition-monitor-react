@@ -9,6 +9,8 @@ import BodyFatReport from './pages/BodyFatReport';
 import MuscleMassReport from './pages/MuscleMassReport';
 import WeightReport from './pages/WeightReport';
 import CustomMetricsReport from './pages/CustomMetricsReport';
+import NotFound from './pages/NotFound';
+import InstallPrompt from './components/InstallPrompt';
 
 function AppContent() {
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -18,6 +20,7 @@ function AppContent() {
 
   return (
     <Router>
+      <InstallPrompt />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route
@@ -36,8 +39,8 @@ function AppContent() {
           <Route path="reports/custom" element={<CustomMetricsReport />} />
         </Route>
         {/** Settings removed */}
-        {/* Catch-all: redirect unknown routes to dashboard */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        {/* Catch-all: show 404 page for unknown routes */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
