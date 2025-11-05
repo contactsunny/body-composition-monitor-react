@@ -1,0 +1,32 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="url(#gradient)"/>
+  
+  <!-- Gradient -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="50%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#d946ef"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Body composition chart - simplified bars -->
+  <g transform="translate(8, 8)">
+    <!-- Bar chart representing body metrics -->
+    <rect x="0" y="8" width="2.5" height="8" fill="white" opacity="0.9" rx="1"/>
+    <rect x="3.5" y="4" width="2.5" height="12" fill="white" opacity="0.95" rx="1"/>
+    <rect x="7" y="6" width="2.5" height="10" fill="white" opacity="0.9" rx="1"/>
+    <rect x="10.5" y="2" width="2.5" height="14" fill="white" rx="1"/>
+    
+    <!-- Trend line overlay -->
+    <path d="M 1.25,12 L 4.75,7 L 8.25,9 L 11.75,4" 
+          stroke="white" 
+          stroke-width="1.5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          fill="none" 
+          opacity="0.7"/>
+  </g>
+</svg>
+
