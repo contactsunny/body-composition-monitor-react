@@ -43,24 +43,23 @@ export const signInWithGoogle = async (): Promise<string> => {
   provider.addScope("profile");
   provider.addScope("email");
 
-  const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)/.test(window.location.hostname);
-
-  // On localhost: prefer popup (no Hosting dependency); fallback to redirect if popup blocked
-  if (isLocalhost) {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const idToken = await result.user.getIdToken();
-      return idToken;
-    } catch (error: any) {
-      // On localhost, do NOT fallback to redirect (requires Hosting and causes 404/500).
-      // Surface the popup error to the UI so the user can retry/allow popups.
-      throw error;
+  // Try popup first everywhere; if blocked/closed, fall back to redirect
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const idToken = await result.user.getIdToken();
+    return idToken;
+  } catch (error: any) {
+    const code = error?.code as string | undefined;
+    if (
+      code === "auth/popup-closed-by-user" ||
+      code === "auth/popup-blocked" ||
+      code === "auth/cancelled-popup-request"
+    ) {
+      await signInWithRedirect(auth, provider);
+      throw new Error("__AUTH_REDIRECT__");
     }
+    throw error;
   }
-
-  // In production: use redirect to avoid COOP issues
-  await signInWithRedirect(auth, provider);
-  throw new Error("__AUTH_REDIRECT__");
 };
 
 /**
