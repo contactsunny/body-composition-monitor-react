@@ -15,3 +15,9 @@ body {
   min-height: 100vh;
 }
 
+/* Force date inputs to respect width constraints */
+input[type="date"] {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
