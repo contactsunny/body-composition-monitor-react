@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, PieChart, Pie, Cell } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import { fetchBodyComposition, BodyCompositionRecord } from "../services/bodyCompositionService";
 import { formatDate } from "../utils/dateUtils";
 
@@ -83,15 +83,31 @@ const ReportsOverview = () => {
           {/* Trends Line Chart */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 lg:p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Key Trends</h2>
+            {/* Custom Legend outside chart */}
+            <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-0.5" style={{ backgroundColor: "#6366f1" }}></div>
+                  <span className="text-gray-700 dark:text-gray-300">Weight (kg)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-0.5" style={{ backgroundColor: "#ef4444" }}></div>
+                  <span className="text-gray-700 dark:text-gray-300">Body Fat %</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-0.5" style={{ backgroundColor: "#10b981" }}></div>
+                  <span className="text-gray-700 dark:text-gray-300">Muscle Mass %</span>
+                </div>
+              </div>
+            </div>
             <div className="h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={timeSeries} margin={{ top: 50, right: 20, left: 10, bottom: 50 }}>
+                <LineChart data={timeSeries} margin={{ top: 20, right: 20, left: 10, bottom: 50 }}>
                   <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-700" />
                   <XAxis dataKey="dateLabel" angle={-35} textAnchor="end" height={50} tick={{ fill: "#6b7280" }} />
                   <YAxis yAxisId="left" tick={{ fill: "#6b7280" }} />
                   <YAxis yAxisId="right" orientation="right" tick={{ fill: "#6b7280" }} />
                   <Tooltip />
-                  <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: 8 }} />
                   <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#6366f1" name="Weight (kg)" strokeWidth={2} dot={false} />
                   <Line yAxisId="right" type="monotone" dataKey="bodyFatPercentage" stroke="#ef4444" name="Body Fat %" strokeWidth={2} dot={false} />
                   <Line yAxisId="right" type="monotone" dataKey="muscleMassPercentage" stroke="#10b981" name="Muscle Mass %" strokeWidth={2} dot={false} />

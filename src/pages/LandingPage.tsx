@@ -178,7 +178,7 @@ const LandingPage = () => {
                 Comprehensive Body Trends
               </h3>
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={sampleData}>
+                <AreaChart data={sampleData} margin={{ top: 100, right: 20, left: 10, bottom: 10 }}>
                   <defs>
                     <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
@@ -203,7 +203,7 @@ const LandingPage = () => {
                       borderRadius: '8px',
                     }}
                   />
-                  <Legend />
+                  <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: 20, paddingTop: 0, marginTop: 0 }} />
                   <Area type="monotone" dataKey="weight" stroke="#6366f1" fillOpacity={1} fill="url(#colorWeight)" name="Weight (kg)" strokeWidth={2} />
                   <Area type="monotone" dataKey="muscleMass" stroke="#10b981" fillOpacity={1} fill="url(#colorMuscle)" name="Muscle Mass (kg)" strokeWidth={2} />
                   <Area type="monotone" dataKey="water" stroke="#3b82f6" fillOpacity={1} fill="url(#colorWater)" name="Water (kg)" strokeWidth={2} />
@@ -246,7 +246,7 @@ const LandingPage = () => {
               Monthly Progress Comparison
             </h3>
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={monthlyProgress}>
+              <BarChart data={monthlyProgress} margin={{ top: 100, right: 20, left: 10, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
                 <XAxis dataKey="month" stroke="#6b7280" />
                 <YAxis stroke="#6b7280" />
@@ -257,7 +257,7 @@ const LandingPage = () => {
                     borderRadius: '8px',
                   }}
                 />
-                <Legend />
+                <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: 16, paddingTop: 0 }} />
                 <Bar dataKey="weight" fill="#6366f1" name="Weight (kg)" radius={[8, 8, 0, 0]} />
                 <Bar dataKey="muscle" fill="#10b981" name="Muscle Mass (kg)" radius={[8, 8, 0, 0]} />
               </BarChart>
@@ -271,7 +271,7 @@ const LandingPage = () => {
               Body Fat Percentage Trend
             </h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={sampleData}>
+              <LineChart data={sampleData} margin={{ top: 100, right: 20, left: 10, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
                 <XAxis dataKey="date" stroke="#6b7280" />
                 <YAxis stroke="#6b7280" />
@@ -282,7 +282,7 @@ const LandingPage = () => {
                     borderRadius: '8px',
                   }}
                 />
-                <Legend />
+                <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: 16, paddingTop: 0 }} />
                 <Line
                   type="monotone"
                   dataKey="bodyFat"

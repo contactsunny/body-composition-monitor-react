@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { fetchBodyComposition, BodyCompositionRecord } from "../services/bodyCompositionService";
 import { formatDate } from "../utils/dateUtils";
 
@@ -41,6 +41,8 @@ const CustomMetricsReport = () => {
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<MetricKey[]>(["weight", "bodyFatPercentage", "muscleMassPercentage"]);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -56,6 +58,27 @@ const CustomMetricsReport = () => {
       }
     })();
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const isClickOnButton = buttonRef.current?.contains(target);
+      const isClickOnMenu = dropdownMenuRef.current?.contains(target);
+      
+      if (!isClickOnButton && !isClickOnMenu) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
 
   const timeSeries = useMemo(
     () =>
@@ -93,13 +116,14 @@ const CustomMetricsReport = () => {
 
       <div className="mb-4 relative">
         <button
+          ref={buttonRef}
           onClick={() => setOpen((v) => !v)}
           className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
         >
           Select metrics ({selected.length})
         </button>
         {open && (
-          <div className="absolute mt-2 z-20 w-80 max-h-80 overflow-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-3">
+          <div ref={dropdownMenuRef} className="absolute mt-2 z-20 w-80 max-h-80 overflow-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-3">
             {METRIC_OPTIONS.map((opt) => (
               <label key={opt.key} className="flex items-center gap-3 px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg cursor-pointer">
                 <input
@@ -133,15 +157,25 @@ const CustomMetricsReport = () => {
 
       {!loading && !error && timeSeries.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 lg:p-6">
+          {/* Custom Legend outside chart */}
+          <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex flex-wrap gap-4 text-sm">
+              {METRIC_OPTIONS.filter((m) => selected.includes(m.key)).map((m) => (
+                <div key={m.key} className="flex items-center gap-2">
+                  <div className="w-4 h-0.5" style={{ backgroundColor: m.color }}></div>
+                  <span className="text-gray-700 dark:text-gray-300">{m.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="h-[380px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={timeSeries} margin={{ top: 50, right: 20, left: 10, bottom: 50 }}>
+              <LineChart data={timeSeries} margin={{ top: 20, right: 20, left: 10, bottom: 50 }}>
                 <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-700" />
                 <XAxis dataKey="dateLabel" angle={-35} textAnchor="end" height={50} tick={{ fill: "#6b7280" }} />
                 <YAxis yAxisId="left" tick={{ fill: "#6b7280" }} />
                 <YAxis yAxisId="right" orientation="right" tick={{ fill: "#6b7280" }} />
                 <Tooltip />
-                <Legend verticalAlign="top" height={36} />
                 {METRIC_OPTIONS.filter((m) => selected.includes(m.key)).map((m) => (
                   <Line
                     key={m.key}

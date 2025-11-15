@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, Area, AreaChart } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Area, AreaChart } from "recharts";
 import { fetchBodyComposition, BodyCompositionRecord } from "../services/bodyCompositionService";
 import { formatDate } from "../utils/dateUtils";
 
@@ -73,14 +73,26 @@ const WeightReport = () => {
               variance) to reveal your underlying direction of change. Use it to judge
               progress more reliably than single‑day values.
             </p>
+            {/* Custom Legend outside chart */}
+            <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-0.5" style={{ backgroundColor: "#6366f1" }}></div>
+                  <span className="text-gray-700 dark:text-gray-300">Weight (kg)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-0.5" style={{ backgroundColor: "#f59e0b" }}></div>
+                  <span className="text-gray-700 dark:text-gray-300">7-pt Avg</span>
+                </div>
+              </div>
+            </div>
             <div className="h-[340px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sma7} margin={{ top: 50, right: 20, left: 10, bottom: 50 }}>
+                <LineChart data={sma7} margin={{ top: 20, right: 20, left: 10, bottom: 50 }}>
                   <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-700" />
                   <XAxis dataKey="dateLabel" angle={-35} textAnchor="end" height={50} tick={{ fill: "#6b7280" }} />
                   <YAxis tick={{ fill: "#6b7280" }} />
                   <Tooltip />
-                  <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: 8 }} />
                   <Line type="monotone" dataKey="weight" stroke="#6366f1" name="Weight (kg)" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="sma7" stroke="#f59e0b" name="7-pt Avg" strokeWidth={2} dot={false} />
                 </LineChart>

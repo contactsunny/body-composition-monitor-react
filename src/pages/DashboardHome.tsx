@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   fetchBodyComposition,
   createBodyComposition,
@@ -22,6 +23,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Sector,
 } from "recharts";
 import {
   ChevronLeftIcon,
@@ -38,6 +40,7 @@ type SortField = keyof BodyCompositionRecord;
 type SortDirection = "asc" | "desc";
 
 const DashboardHome = () => {
+  const { theme } = useTheme();
   const [data, setData] = useState<BodyCompositionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +94,7 @@ const DashboardHome = () => {
     "metabolicAge",
   ];
 
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [inputValues, setInputValues] = useState<Record<NumericField, string>>({
     weight: "",
     bodyFatPercentage: "",
@@ -1195,6 +1199,23 @@ const DashboardHome = () => {
                   <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6">
                     Body Composition Trends
                   </h2>
+                  {/* Custom Legend outside chart */}
+                  <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-0.5" style={{ backgroundColor: "#6366f1" }}></div>
+                        <span className="text-gray-700 dark:text-gray-300">Weight (kg)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-0.5" style={{ backgroundColor: "#ef4444" }}></div>
+                        <span className="text-gray-700 dark:text-gray-300">Body Fat %</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-0.5" style={{ backgroundColor: "#10b981" }}></div>
+                        <span className="text-gray-700 dark:text-gray-300">Muscle Mass %</span>
+                      </div>
+                    </div>
+                  </div>
                   <div
                     className="w-full"
                     style={{ height: "350px", minHeight: "300px" }}
@@ -1369,15 +1390,6 @@ const DashboardHome = () => {
                           }}
                           wrapperStyle={{ zIndex: 1000 }}
                         />
-                        <Legend
-                          wrapperStyle={{ paddingTop: "20px" }}
-                          iconType="line"
-                          formatter={(value) => (
-                            <span className="text-gray-700 dark:text-gray-300 text-sm">
-                              {value}
-                            </span>
-                          )}
-                        />
                         <Line
                           yAxisId="left"
                           type="monotone"
@@ -1522,6 +1534,23 @@ const DashboardHome = () => {
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                     Body Composition Trends
                   </h2>
+                  {/* Custom Legend outside chart */}
+                  <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-0.5" style={{ backgroundColor: "#6366f1" }}></div>
+                        <span className="text-gray-700 dark:text-gray-300">Weight (kg)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-0.5" style={{ backgroundColor: "#ef4444" }}></div>
+                        <span className="text-gray-700 dark:text-gray-300">Body Fat %</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-0.5" style={{ backgroundColor: "#10b981" }}></div>
+                        <span className="text-gray-700 dark:text-gray-300">Muscle Mass %</span>
+                      </div>
+                    </div>
+                  </div>
                   <div
                     className="w-full"
                     style={{ height: "350px", minHeight: "300px" }}
@@ -1696,15 +1725,6 @@ const DashboardHome = () => {
                           }}
                           wrapperStyle={{ zIndex: 1000 }}
                         />
-                        <Legend
-                          wrapperStyle={{ paddingTop: "20px" }}
-                          iconType="line"
-                          formatter={(value) => (
-                            <span className="text-gray-700 dark:text-gray-300 text-sm">
-                              {value}
-                            </span>
-                          )}
-                        />
                         <Line
                           yAxisId="left"
                           type="monotone"
@@ -1781,66 +1801,107 @@ const DashboardHome = () => {
                   </h2>
                   <div
                     className="w-full"
-                    style={{ height: "350px", minHeight: "300px" }}
+                    style={{ height: "380px", minHeight: "380px" }}
+                    onMouseLeave={() => setActiveIndex(null)}
                   >
                     <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
+                      <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                         <Pie
                           data={compositionData}
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ name, percent }) =>
-                            `${name}: ${(percent * 100).toFixed(1)}%`
-                          }
-                          outerRadius={120}
+                          label={null}
+                          innerRadius={70}
+                          outerRadius={130}
                           fill="#8884d8"
                           dataKey="value"
                           animationDuration={300}
+                          paddingAngle={2}
+                          activeIndex={activeIndex ?? undefined}
+                          activeShape={(props: any) => {
+                            const entry = props.payload;
+                            if (!entry) return null;
+                            
+                            const borderColor = "#fff";
+                            const textColor = theme === "dark" ? "#fff" : "#1f2937";
+                            
+                            return (
+                              <g>
+                                <Sector
+                                  cx={props.cx}
+                                  cy={props.cy}
+                                  innerRadius={props.innerRadius}
+                                  outerRadius={props.outerRadius + 8}
+                                  startAngle={props.startAngle}
+                                  endAngle={props.endAngle}
+                                  fill={entry.color || "#8884d8"}
+                                  stroke={borderColor}
+                                  strokeWidth={3}
+                                  opacity={1}
+                                />
+                                <text
+                                  x={props.cx}
+                                  y={props.cy - 8}
+                                  textAnchor="middle"
+                                  dominantBaseline="central"
+                                  className="font-bold text-sm"
+                                  fill={textColor}
+                                >
+                                  {entry.name}
+                                </text>
+                                <text
+                                  x={props.cx}
+                                  y={props.cy + 12}
+                                  textAnchor="middle"
+                                  dominantBaseline="central"
+                                  className="font-semibold text-base"
+                                  fill={textColor}
+                                >
+                                  {Number(entry.value || 0).toFixed(1)}%
+                                </text>
+                              </g>
+                            );
+                          }}
+                          onClick={(data: any, index: number) => {
+                            try {
+                              if (index !== undefined && index !== null) {
+                                setActiveIndex(activeIndex === index ? null : index);
+                              }
+                            } catch (error) {
+                              console.error("Error in onClick:", error);
+                            }
+                          }}
                         >
                           {compositionData.map((entry, index) => (
                             <Cell
                               key={`cell-mobile-${index}`}
                               fill={entry.color}
+                              style={{ cursor: 'pointer' }}
                             />
                           ))}
                         </Pie>
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              const data = payload[0];
-                              return (
-                                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3">
-                                  <p className="font-semibold text-gray-900 dark:text-white mb-2">
-                                    {data.name}
-                                  </p>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    Value:{" "}
-                                    <span className="font-bold text-gray-900 dark:text-white">
-                                      {Number(
-                                        (data as any)?.value ?? 0
-                                      ).toFixed(1)}
-                                      %
-                                    </span>
-                                  </p>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    Percentage:{" "}
-                                    <span className="font-bold text-gray-900 dark:text-white">
-                                      {Number(
-                                        ((data as any)?.payload?.percent ?? 0) *
-                                          100
-                                      ).toFixed(1)}
-                                      %
-                                    </span>
-                                  </p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
                       </PieChart>
                     </ResponsiveContainer>
+                  </div>
+                  {/* Mobile Legend */}
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      {compositionData.map((entry, index) => (
+                        <div key={`legend-mobile-${index}`} className="flex items-center gap-2">
+                          <div 
+                            className="w-4 h-4 rounded-full flex-shrink-0" 
+                            style={{ backgroundColor: entry.color }}
+                          ></div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-gray-700 dark:text-gray-300 font-medium">{entry.name}</span>
+                            <span className="text-gray-500 dark:text-gray-400 ml-1">
+                              {Number(entry.value).toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
