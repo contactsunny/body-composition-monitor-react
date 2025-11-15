@@ -1954,9 +1954,9 @@ const DashboardHome = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden min-w-0">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 md:px-6 py-4 flex items-center justify-between rounded-t-2xl z-10 min-w-0">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {editingRecord ? "Edit Record" : "Add New Record"}
               </h2>
@@ -1970,7 +1970,7 @@ const DashboardHome = () => {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleSubmit} className="p-6 min-w-0 max-w-full overflow-x-hidden">
+            <form onSubmit={handleSubmit} className="p-4 md:p-6 min-w-0 max-w-full overflow-x-hidden w-full">
               <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 {editingRecord
                   ? "Update the fields below and click Update to save your changes."
@@ -1984,9 +1984,9 @@ const DashboardHome = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0 w-full">
                 {/* Date Field */}
-                <div className="md:col-span-2 min-w-0 max-w-full">
+                <div className="md:col-span-2 min-w-0 w-full max-w-full overflow-hidden">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date <span className="text-red-500">*</span>
                   </label>
@@ -1994,12 +1994,12 @@ const DashboardHome = () => {
                     type="date"
                     value={formatDateForInput(formData.date)}
                     onChange={(e) => handleDateChange(e.target.value)}
-                    className={`w-full max-w-full min-w-0 box-border px-3 md:px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    className={`w-full max-w-full min-w-0 box-border px-2 md:px-3 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                       formErrors.date
                         ? "border-red-500 dark:border-red-500"
                         : "border-gray-300 dark:border-gray-600"
                     }`}
-                    style={{ maxWidth: '100%' }}
+                    style={{ maxWidth: '100%', width: '100%' }}
                     required
                   />
                   {formData.date && (
