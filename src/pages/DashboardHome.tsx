@@ -1986,7 +1986,7 @@ const DashboardHome = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0 w-full">
                 {/* Date Field */}
-                <div className="md:col-span-2 min-w-0 w-full max-w-full overflow-hidden">
+                <div className="md:col-span-2 min-w-0 w-full max-w-full">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date <span className="text-red-500">*</span>
                   </label>
@@ -1999,7 +1999,7 @@ const DashboardHome = () => {
                         ? "border-red-500 dark:border-red-500"
                         : "border-gray-300 dark:border-gray-600"
                     }`}
-                    style={{ maxWidth: '100%', width: '100%' }}
+                    style={{ maxWidth: '100%', width: '100%', boxSizing: 'border-box' }}
                     required
                   />
                   {formData.date && (
