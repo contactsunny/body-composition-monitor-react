@@ -1970,7 +1970,7 @@ const DashboardHome = () => {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleSubmit} className="p-6">
+            <form onSubmit={handleSubmit} className="p-6 min-w-0 max-w-full overflow-x-hidden">
               <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 {editingRecord
                   ? "Update the fields below and click Update to save your changes."
@@ -1986,7 +1986,7 @@ const DashboardHome = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Date Field */}
-                <div className="md:col-span-2 min-w-0">
+                <div className="md:col-span-2 min-w-0 max-w-full">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date <span className="text-red-500">*</span>
                   </label>
@@ -1994,11 +1994,12 @@ const DashboardHome = () => {
                     type="date"
                     value={formatDateForInput(formData.date)}
                     onChange={(e) => handleDateChange(e.target.value)}
-                    className={`w-full min-w-0 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    className={`w-full max-w-full min-w-0 box-border px-3 md:px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                       formErrors.date
                         ? "border-red-500 dark:border-red-500"
                         : "border-gray-300 dark:border-gray-600"
                     }`}
+                    style={{ maxWidth: '100%' }}
                     required
                   />
                   {formData.date && (
