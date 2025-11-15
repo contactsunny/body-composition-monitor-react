@@ -18,7 +18,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -1811,7 +1810,7 @@ const DashboardHome = () => {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={null}
+                          label={false}
                           innerRadius={70}
                           outerRadius={130}
                           fill="#8884d8"
@@ -1821,7 +1820,7 @@ const DashboardHome = () => {
                           activeIndex={activeIndex ?? undefined}
                           activeShape={(props: any) => {
                             const entry = props.payload;
-                            if (!entry) return null;
+                            if (!entry) return <g></g>;
                             
                             const borderColor = "#fff";
                             const textColor = theme === "dark" ? "#fff" : "#1f2937";
@@ -1863,7 +1862,7 @@ const DashboardHome = () => {
                               </g>
                             );
                           }}
-                          onClick={(data: any, index: number) => {
+                          onClick={(_data: any, index: number) => {
                             try {
                               if (index !== undefined && index !== null) {
                                 setActiveIndex(activeIndex === index ? null : index);
