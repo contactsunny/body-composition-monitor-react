@@ -1994,12 +1994,17 @@ const DashboardHome = () => {
                     type="date"
                     value={formatDateForInput(formData.date)}
                     onChange={(e) => handleDateChange(e.target.value)}
-                    className={`w-full max-w-full min-w-0 box-border px-2 md:px-3 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    className={`w-full box-border px-2 md:px-3 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                       formErrors.date
                         ? "border-red-500 dark:border-red-500"
                         : "border-gray-300 dark:border-gray-600"
                     }`}
-                    style={{ maxWidth: '100%', width: '100%', boxSizing: 'border-box' }}
+                    style={{ 
+                      width: '100%', 
+                      maxWidth: '100%',
+                      boxSizing: 'border-box',
+                      minWidth: 0
+                    }}
                     required
                   />
                   {formData.date && (
