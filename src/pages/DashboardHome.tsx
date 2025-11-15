@@ -1954,7 +1954,7 @@ const DashboardHome = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
             {/* Modal Header */}
             <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -1986,7 +1986,7 @@ const DashboardHome = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Date Field */}
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 min-w-0">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date <span className="text-red-500">*</span>
                   </label>
@@ -1994,7 +1994,7 @@ const DashboardHome = () => {
                     type="date"
                     value={formatDateForInput(formData.date)}
                     onChange={(e) => handleDateChange(e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                    className={`w-full min-w-0 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                       formErrors.date
                         ? "border-red-500 dark:border-red-500"
                         : "border-gray-300 dark:border-gray-600"
