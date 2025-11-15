@@ -19,5 +19,11 @@ body {
 input[type="date"] {
   min-width: 0 !important;
   max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Ensure grid items can shrink */
+.grid > * {
+  min-width: 0;
 }
 
