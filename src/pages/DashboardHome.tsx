@@ -556,6 +556,8 @@ const DashboardHome = () => {
             </option>
             <option value="visceralFat-desc">Visceral Fat (High to Low)</option>
             <option value="visceralFat-asc">Visceral Fat (Low to High)</option>
+            <option value="bodyHydration-desc">Body Hydration % (High to Low)</option>
+            <option value="bodyHydration-asc">Body Hydration % (Low to High)</option>
             <option value="skeletalMuscle-desc">
               Skeletal Muscle % (High to Low)
             </option>
@@ -619,6 +621,11 @@ const DashboardHome = () => {
                 <SortableHeader
                   field="visceralFat"
                   label="Visceral Fat %"
+                  className="px-2 py-1.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[70px]"
+                />
+                <SortableHeader
+                  field="bodyHydration"
+                  label="Water %"
                   className="px-2 py-1.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[70px]"
                 />
                 <SortableHeader
@@ -733,6 +740,18 @@ const DashboardHome = () => {
                           record,
                           getPreviousRecord(record),
                           "visceralFat"
+                        )}
+                      />
+                    </span>
+                  </td>
+                  <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
+                    <span className="flex items-center">
+                      {record.bodyHydration}
+                      <TrendIndicator
+                        trend={calculateTrend(
+                          record,
+                          getPreviousRecord(record),
+                          "bodyHydration"
                         )}
                       />
                     </span>
@@ -990,6 +1009,24 @@ const DashboardHome = () => {
                   </p>
                 </div>
 
+                {/* Body Hydration % */}
+                <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-xl p-3 border border-cyan-200/50 dark:border-cyan-800/50">
+                  <p className="text-xs text-cyan-600 dark:text-cyan-400 font-medium mb-1">
+                    Body Hydration %
+                  </p>
+                  <p className="text-lg font-bold text-cyan-700 dark:text-cyan-300 flex items-center">
+                    {record.bodyHydration}
+                    <span className="text-sm ml-1">%</span>
+                    <TrendIndicator
+                      trend={calculateTrend(
+                        record,
+                        getPreviousRecord(record),
+                        "bodyHydration"
+                      )}
+                    />
+                  </p>
+                </div>
+
                 {/* Skeletal Muscle % */}
                 <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200/50 dark:border-purple-800/50">
                   <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">
@@ -1062,11 +1099,11 @@ const DashboardHome = () => {
                 </div>
 
                 {/* Metabolic Age */}
-                <div className="col-span-2 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-xl p-3 border border-gray-300/50 dark:border-gray-600/50">
+                <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-3 border border-gray-300/50 dark:border-gray-600/50">
                   <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">
                     Metabolic Age
                   </p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                  <p className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                     {record.metabolicAge}
                     <span className="text-sm ml-1 font-normal text-gray-600 dark:text-gray-400">
                       years
