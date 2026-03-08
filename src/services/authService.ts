@@ -17,6 +17,8 @@ export interface ApiUser {
   imageUrl: string;
   appleUserId: string | null;
   lastActiveDate: string;
+  gender?: string;
+  height?: number;
 }
 
 export interface ApiLoginResponse {

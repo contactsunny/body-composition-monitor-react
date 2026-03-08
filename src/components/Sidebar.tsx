@@ -5,6 +5,7 @@ import {
   ChartBarIcon,
   ChevronRightIcon,
   XMarkIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
@@ -25,6 +26,11 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     path: "/dashboard",
     icon: HomeIcon,
+  },
+  {
+    name: "Profile",
+    path: "/dashboard/profile",
+    icon: UserCircleIcon,
   },
   {
     name: "Reports",

@@ -96,14 +96,17 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
 
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-              <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => { navigate('/dashboard/profile'); setDropdownOpen(false); }}
+                className="w-full text-left px-4 py-2 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">
                   {user?.name}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {user?.email}
                 </p>
-              </div>
+              </button>
               {/* Settings removed */}
               <button
                 onClick={handleLogout}

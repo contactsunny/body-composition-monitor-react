@@ -10,14 +10,15 @@ import MuscleMassReport from './pages/MuscleMassReport';
 import WeightReport from './pages/WeightReport';
 import CustomMetricsReport from './pages/CustomMetricsReport';
 import NotFound from './pages/NotFound';
+import ProfilePage from './pages/ProfilePage';
 import InstallPrompt from './components/InstallPrompt';
 
-function AppContent() {
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    const { isAuthenticated } = useAuth();
-    return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
-  };
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
+};
 
+function AppContent() {
   return (
     <Router>
       <InstallPrompt />
@@ -32,6 +33,7 @@ function AppContent() {
           }
         >
           <Route index element={<DashboardHome />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="reports/overview" element={<ReportsOverview />} />
           <Route path="reports/body-fat" element={<BodyFatReport />} />
           <Route path="reports/muscle-mass" element={<MuscleMassReport />} />

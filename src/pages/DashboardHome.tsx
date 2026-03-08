@@ -11,8 +11,27 @@ import {
 import { formatDate, getFormattedDateFromTimestamp } from "../utils/dateUtils";
 import { calculateTrend } from "../utils/trendUtils";
 import TrendIndicator from "../components/TrendIndicator";
+import HealthIndicator from "../components/HealthIndicator";
+import { 
+  getBMICategory, 
+  getBodyFatCategory, 
+  getVisceralFatCategory, 
+  getMuscleMassPercentageCategory, 
+  getWaterPercentageCategory, 
+  getSkeletalMuscleCategory, 
+  getProteinCategory, 
+  getBoneMassCategory,
+  getMetabolicAgeCategory,
+  getSubcutaneousFatCategory,
+  getBMRCategory,
+  getStatusConfig,
+  HealthStatus
+} from "../utils/healthUtils";
+
+import { useAuth } from "../contexts/AuthContext";
 import {
   LineChart,
+
   Line,
   XAxis,
   YAxis,
@@ -33,14 +52,22 @@ import {
   XMarkIcon,
   PencilIcon,
   TrashIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
+import MetricInfoModal from "../components/MetricInfoModal";
+
 
 type SortField = keyof BodyCompositionRecord;
 type SortDirection = "asc" | "desc";
 
 const DashboardHome = () => {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  const gender = user?.gender || 'M';
+  
   const [data, setData] = useState<BodyCompositionRecord[]>([]);
+
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,6 +84,20 @@ const DashboardHome = () => {
     recordId: string | null;
   }>({ isOpen: false, recordId: null });
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Info Modal state
+  const [infoModal, setInfoModal] = useState<{
+    isOpen: boolean;
+    field: string;
+    name: string;
+    value: number;
+  }>({
+    isOpen: false,
+    field: '',
+    name: '',
+    value: 0
+  });
+
 
   // Form state
   const [formData, setFormData] = useState<CreateBodyCompositionRequest>({
@@ -180,6 +221,51 @@ const DashboardHome = () => {
     return null;
   };
 
+  const getHealthStatus = (record: BodyCompositionRecord, field: keyof BodyCompositionRecord): HealthStatus | null => {
+    // Robustly handle values - ensure they are numbers
+    const rawValue = record[field];
+    if (rawValue === undefined || rawValue === null) return null;
+    
+    const value = Number(rawValue);
+    
+    // 0 is often a valid measurement for Visceral Fat, but for others it might mean "missing"
+    if (value === 0 && field !== 'visceralFat') return null;
+
+    switch (field) {
+      case 'bmi': return getBMICategory(value);
+      case 'weight': return getBMICategory(Number(record.bmi));
+      case 'bodyFatPercentage': return getBodyFatCategory(value, gender || 'M');
+      case 'visceralFat': return getVisceralFatCategory(value);
+      case 'muscleMassPercentage': return getMuscleMassPercentageCategory(value, gender || 'M');
+      case 'muscleMass': return getMuscleMassPercentageCategory(Number(record.muscleMassPercentage), gender || 'M');
+      case 'bodyHydration': return getWaterPercentageCategory(value, gender || 'M');
+      case 'skeletalMuscle': return getSkeletalMuscleCategory(value, gender || 'M');
+      case 'protein': return getProteinCategory(value);
+      case 'boneMass': return getBoneMassCategory(value, gender || 'M', Number(record.weight));
+      case 'metabolicAge': return getMetabolicAgeCategory(value, 25);
+      case 'subcutaneousFat': return getSubcutaneousFatCategory(value, gender || 'M');
+      case 'bmr': return getBMRCategory(value, gender || 'M');
+      default: return null;
+    }
+  };
+
+  const openInfoModal = (field: string, name: string) => {
+    // Find latest value for this metric to show on scale
+    const sortedByDate = [...data].sort((a, b) => b.date - a.date);
+    const latestValue = sortedByDate.length > 0 ? Number(sortedByDate[0][field as keyof BodyCompositionRecord] || 0) : 0;
+    
+    setInfoModal({
+      isOpen: true,
+      field,
+      name,
+      value: latestValue
+    });
+  };
+
+
+
+
+
   // Sort header component
   const SortableHeader = ({
     field,
@@ -194,10 +280,10 @@ const DashboardHome = () => {
     return (
       <th
         onClick={() => handleSort(field)}
-        className={`${className} cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group`}
+        className={`${className} cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group relative`}
       >
         <div className="flex items-center gap-1">
-          <span>{label}</span>
+          <span className="truncate">{label}</span>
           <div className="flex flex-col">
             {isActive ? (
               sortDirection === "asc" ? (
@@ -212,10 +298,23 @@ const DashboardHome = () => {
               </div>
             )}
           </div>
+          {field !== 'date' && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                openInfoModal(field, label);
+              }}
+              className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-500 hover:text-indigo-500 transition-all ml-auto"
+              title={`View ${label} ranges`}
+            >
+              <InformationCircleIcon className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       </th>
     );
   };
+
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -673,9 +772,11 @@ const DashboardHome = () => {
                     {formatDate(record.date)}
                   </td>
                   <td className="sticky left-[95px] z-10 bg-white dark:bg-gray-800 px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'weight')!} />
                       {record.weight}
                       <TrendIndicator
+
                         trend={calculateTrend(
                           record,
                           getPreviousRecord(record),
@@ -685,7 +786,8 @@ const DashboardHome = () => {
                     </span>
                   </td>
                   <td className="sticky left-[165px] z-10 bg-white dark:bg-gray-800 px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'bodyFatPercentage')!} />
                       {record.bodyFatPercentage}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -697,7 +799,8 @@ const DashboardHome = () => {
                     </span>
                   </td>
                   <td className="sticky left-[235px] z-10 bg-white dark:bg-gray-800 px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700 w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'muscleMassPercentage')!} />
                       {record.muscleMassPercentage}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -708,8 +811,10 @@ const DashboardHome = () => {
                       />
                     </span>
                   </td>
+
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'muscleMass')!} />
                       {record.muscleMass}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -720,8 +825,10 @@ const DashboardHome = () => {
                       />
                     </span>
                   </td>
+
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'subcutaneousFat')!} />
                       {record.subcutaneousFat}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -732,8 +839,11 @@ const DashboardHome = () => {
                       />
                     </span>
                   </td>
+
+
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'visceralFat')!} />
                       {record.visceralFat}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -745,7 +855,8 @@ const DashboardHome = () => {
                     </span>
                   </td>
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'bodyHydration')!} />
                       {record.bodyHydration}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -756,8 +867,10 @@ const DashboardHome = () => {
                       />
                     </span>
                   </td>
+
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'skeletalMuscle')!} />
                       {record.skeletalMuscle}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -769,7 +882,8 @@ const DashboardHome = () => {
                     </span>
                   </td>
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'boneMass')!} />
                       {record.boneMass}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -780,8 +894,10 @@ const DashboardHome = () => {
                       />
                     </span>
                   </td>
+
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'protein')!} />
                       {record.protein}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -793,7 +909,8 @@ const DashboardHome = () => {
                     </span>
                   </td>
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'bmi')!} />
                       {record.bmi}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -804,8 +921,10 @@ const DashboardHome = () => {
                       />
                     </span>
                   </td>
+
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'bmr')!} />
                       {record.bmr}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -816,8 +935,10 @@ const DashboardHome = () => {
                       />
                     </span>
                   </td>
+
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[70px]">
-                    <span className="flex items-center">
+                    <span className="flex items-center gap-1">
+                      <HealthIndicator status={getHealthStatus(record, 'metabolicAge')!} />
                       {record.metabolicAge}
                       <TrendIndicator
                         trend={calculateTrend(
@@ -828,6 +949,7 @@ const DashboardHome = () => {
                       />
                     </span>
                   </td>
+
                   <td className="px-2 py-1.5 whitespace-nowrap text-sm text-gray-900 dark:text-white w-[65px]">
                     <div className="flex items-center gap-1">
                       <button
@@ -872,13 +994,23 @@ const DashboardHome = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0 text-right">
-                    <p className="text-3xl font-bold text-white leading-none">
+                    <p className="text-3xl font-bold text-white leading-none flex items-center justify-end gap-2">
+                      <button 
+                        onClick={() => openInfoModal('weight', 'Weight')}
+                        className="p-1 hover:bg-white/10 rounded-full transition-colors order-first"
+                        title="View Weight ranges"
+                      >
+                        <InformationCircleIcon className="h-5 w-5 text-indigo-100" />
+                      </button>
+                      <HealthIndicator status={getHealthStatus(record, 'weight')!} />
                       {record.weight}{" "}
                       <span className="text-lg text-indigo-100/90 font-semibold uppercase tracking-wide">
                         kg
                       </span>
                     </p>
+
                   </div>
+
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEditRecord(record)}
@@ -904,224 +1036,74 @@ const DashboardHome = () => {
             {/* Card Body */}
             <div className="p-4">
               <div className="grid grid-cols-2 gap-4">
-                {/* Body Fat % */}
-                <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 border border-red-200/50 dark:border-red-800/50">
-                  <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-1">
-                    Body Fat %
-                  </p>
-                  <p className="text-xl font-bold text-red-700 dark:text-red-300 flex items-center">
-                    {record.bodyFatPercentage}
-                    <span className="text-sm ml-1">%</span>
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "bodyFatPercentage"
-                      )}
-                    />
-                  </p>
-                </div>
+                {(() => {
+                  const MetricCard = ({ 
+                    field, 
+                    label, 
+                    unit, 
+                    value 
+                  }: { 
+                    field: keyof BodyCompositionRecord; 
+                    label: string; 
+                    unit?: string; 
+                    value: number | string 
+                  }) => {
+                    const status = getHealthStatus(record, field)!;
+                    const config = getStatusConfig(status);
+                    const trend = calculateTrend(record, getPreviousRecord(record), field);
+                    
+                    return (
+                      <div className={`${config.softBgClass} rounded-xl p-3 border ${config.softBorderClass} transition-colors duration-300`}>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className={`text-xs ${config.colorClass} font-black opacity-80 uppercase tracking-tight`}>
+                            {label}
+                          </p>
+                          <button 
+                            onClick={() => openInfoModal(field, label)}
+                            className={`${config.colorClass} opacity-60 hover:opacity-100 transition-opacity`}
+                            aria-label={`Show info for ${label}`}
+                          >
+                            <InformationCircleIcon className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
 
-                {/* Muscle Mass % */}
-                <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 border border-green-200/50 dark:border-green-800/50">
-                  <p className="text-xs text-green-600 dark:text-green-400 font-medium mb-1">
-                    Muscle Mass %
-                  </p>
-                  <p className="text-xl font-bold text-green-700 dark:text-green-300 flex items-center">
-                    {record.muscleMassPercentage}
-                    <span className="text-sm ml-1">%</span>
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "muscleMassPercentage"
-                      )}
-                    />
-                  </p>
-                </div>
+                        <div className={`text-lg font-black ${config.colorClass} flex items-center flex-wrap gap-1 leading-none`}>
+                          <div className="flex items-center gap-1">
+                            <HealthIndicator status={status} />
+                            <span className="tabular-nums">
+                              {value}
+                            </span>
+                            {unit && <span className="text-[10px] font-bold opacity-70 ml-0.5">{unit}</span>}
+                          </div>
+                          <TrendIndicator trend={trend} />
+                        </div>
+                      </div>
+                    );
+                  };
 
-                {/* Muscle Mass */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200/50 dark:border-blue-800/50">
-                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">
-                    Muscle Mass
-                  </p>
-                  <p className="text-lg font-bold text-blue-700 dark:text-blue-300 flex items-center">
-                    {record.muscleMass}
-                    <span className="text-xs ml-1">kg</span>
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "muscleMass"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* BMI */}
-                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-200/50 dark:border-amber-800/50">
-                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mb-1">
-                    BMI
-                  </p>
-                  <p className="text-lg font-bold text-amber-700 dark:text-amber-300 flex items-center">
-                    {record.bmi}
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "bmi"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* Subcutaneous Fat % */}
-                <div className="bg-pink-50 dark:bg-pink-900/20 rounded-xl p-3 border border-pink-200/50 dark:border-pink-800/50">
-                  <p className="text-xs text-pink-600 dark:text-pink-400 font-medium mb-1">
-                    Subcutaneous Fat %
-                  </p>
-                  <p className="text-lg font-bold text-pink-700 dark:text-pink-300 flex items-center">
-                    {record.subcutaneousFat}
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "subcutaneousFat"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* Visceral Fat % */}
-                <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-3 border border-orange-200/50 dark:border-orange-800/50">
-                  <p className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">
-                    Visceral Fat %
-                  </p>
-                  <p className="text-lg font-bold text-orange-700 dark:text-orange-300 flex items-center">
-                    {record.visceralFat}
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "visceralFat"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* Body Hydration % */}
-                <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-xl p-3 border border-cyan-200/50 dark:border-cyan-800/50">
-                  <p className="text-xs text-cyan-600 dark:text-cyan-400 font-medium mb-1">
-                    Body Hydration %
-                  </p>
-                  <p className="text-lg font-bold text-cyan-700 dark:text-cyan-300 flex items-center">
-                    {record.bodyHydration}
-                    <span className="text-sm ml-1">%</span>
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "bodyHydration"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* Skeletal Muscle % */}
-                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200/50 dark:border-purple-800/50">
-                  <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">
-                    Skeletal Muscle
-                  </p>
-                  <p className="text-lg font-bold text-purple-700 dark:text-purple-300 flex items-center">
-                    {record.skeletalMuscle}
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "skeletalMuscle"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* Bone Mass */}
-                <div className="bg-teal-50 dark:bg-teal-900/20 rounded-xl p-3 border border-teal-200/50 dark:border-teal-800/50">
-                  <p className="text-xs text-teal-600 dark:text-teal-400 font-medium mb-1">
-                    Bone Mass
-                  </p>
-                  <p className="text-lg font-bold text-teal-700 dark:text-teal-300 flex items-center">
-                      {record.boneMass}
-                    <span className="text-xs ml-1">%</span>
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "boneMass"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* Protein */}
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-3 border border-indigo-200/50 dark:border-indigo-800/50">
-                  <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mb-1">
-                    Protein
-                  </p>
-                  <p className="text-lg font-bold text-indigo-700 dark:text-indigo-300 flex items-center">
-                    {record.protein}
-                    <span className="text-xs ml-1">%</span>
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "protein"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* BMR */}
-                <div className="bg-cyan-50 dark:bg-cyan-900/20 rounded-xl p-3 border border-cyan-200/50 dark:border-cyan-800/50">
-                  <p className="text-xs text-cyan-600 dark:text-cyan-400 font-medium mb-1">
-                    BMR
-                  </p>
-                  <p className="text-lg font-bold text-cyan-700 dark:text-cyan-300 flex items-center">
-                    {record.bmr}
-                    <span className="text-xs ml-1">kcal</span>
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "bmr"
-                      )}
-                    />
-                  </p>
-                </div>
-
-                {/* Metabolic Age */}
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-3 border border-gray-300/50 dark:border-gray-600/50">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">
-                    Metabolic Age
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                    {record.metabolicAge}
-                    <span className="text-sm ml-1 font-normal text-gray-600 dark:text-gray-400">
-                      years
-                    </span>
-                    <TrendIndicator
-                      trend={calculateTrend(
-                        record,
-                        getPreviousRecord(record),
-                        "metabolicAge"
-                      )}
-                    />
-                  </p>
-                </div>
+                  return (
+                    <>
+                      <MetricCard field="bodyFatPercentage" label="Body Fat %" unit="%" value={record.bodyFatPercentage} />
+                      <MetricCard field="muscleMassPercentage" label="Muscle Mass %" unit="%" value={record.muscleMassPercentage} />
+                      <MetricCard field="muscleMass" label="Muscle Mass" unit="kg" value={record.muscleMass} />
+                      <MetricCard field="bmi" label="BMI" value={record.bmi} />
+                      <MetricCard field="subcutaneousFat" label="Sub Fat %" unit="%" value={record.subcutaneousFat} />
+                      <MetricCard field="visceralFat" label="Visceral Fat" value={record.visceralFat} />
+                      <MetricCard field="bodyHydration" label="Hydration %" unit="%" value={record.bodyHydration} />
+                      <MetricCard field="skeletalMuscle" label="Skeletal %" unit="%" value={record.skeletalMuscle} />
+                      <MetricCard field="boneMass" label="Bone Mass" unit="kg" value={record.boneMass} />
+                      <MetricCard field="protein" label="Protein %" unit="%" value={record.protein} />
+                      <MetricCard field="metabolicAge" label="Metab. Age" unit="y" value={record.metabolicAge} />
+                      <MetricCard field="bmr" label="BMR" unit="kcal" value={record.bmr} />
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
         ))}
       </div>
+
 
       {/* Pagination Controls */}
       {sortedData.length > 0 && (
@@ -2344,7 +2326,19 @@ const DashboardHome = () => {
           </div>
         </div>
       )}
+
+      {/* Metric Info Modal */}
+      <MetricInfoModal 
+        isOpen={infoModal.isOpen}
+        onClose={() => setInfoModal({ ...infoModal, isOpen: false })}
+        metricField={infoModal.field}
+        metricName={infoModal.name}
+        currentValue={infoModal.value}
+        userGender={gender}
+        currentWeight={paginatedData.length > 0 ? paginatedData[0].weight : 70}
+      />
     </div>
+
   );
 };
 
